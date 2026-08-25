@@ -1,0 +1,331 @@
+<mvc:View
+    controllerName="zfivcaginga.controller.VCAging"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:table="sap.ui.table">
+
+    <Page id="page" title="Vendor/Customer Line Item Aging" showNavButton="false">
+        <content>
+
+            <VBox>
+
+                <fb:FilterBar
+                    id="fbAging"
+                    useToolbar="true"
+                    showGoOnFB="true"
+                    showClearOnFB="true"
+                    search=".onSearch"
+                    clear=".onClearFilters">
+
+                    <fb:filterGroupItems>
+
+                        <fb:FilterGroupItem
+                            groupName="General"
+                            name="EvaluationDate"
+                            label="Evaluation Date"
+                            visibleInFilterBar="true">
+                            <fb:control>
+                                <DatePicker
+                                    id="dpEvaluationDate"
+                                    displayFormat="dd.MM.yyyy"
+                                    valueFormat="yyyy-MM-dd"
+                                    width="14rem" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                        <fb:FilterGroupItem
+                            groupName="General"
+                            name="ReportName"
+                            label="Report Name"
+                            visibleInFilterBar="true">
+                            <fb:control>
+                                <Select id="selReportType" selectedKey="V" width="16rem" change=".onReportTypeChange">
+                                    <core:Item key="V" text="Vendor Aging Analysis" />
+                                    <core:Item key="C" text="Customer Aging Analysis" />
+                                </Select>
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                        <fb:FilterGroupItem
+                            groupName="General"
+                            name="CompanyCode"
+                            label="Company Code"
+                            visibleInFilterBar="true">
+                            <fb:control>
+                                <ComboBox
+                                    id="cbCompanyCode"
+                                    selectedKey="1000"
+                                    width="14rem"
+                                    items="{ccList>/items}">
+                                    <core:Item key="{ccList>key}" text="{ccList>text}" />
+                                </ComboBox>
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                        <fb:FilterGroupItem
+                            groupName="General"
+                            name="BusinessPartner"
+                            label="Vendor/Customer Number"
+                            visibleInFilterBar="true">
+                            <fb:control>
+                                <MultiInput
+                                    id="miBusinessPartner"
+                                    placeholder="Select one or more"
+                                    width="18rem"
+                                    showValueHelp="true"
+                                    showSuggestion="false"
+                                    valueHelpRequest=".onBusinessPartnerMultiValueHelp" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                        <fb:FilterGroupItem
+                            groupName="General"
+                            name="BusinessPartnerGrouping"
+                            label="Vendor/Customer Group"
+                            visibleInFilterBar="true">
+                            <fb:control>
+                                <MultiInput
+                                    id="miBPGroup"
+                                    placeholder="Select one or more"
+                                    width="18rem"
+                                    showValueHelp="true"
+                                    showSuggestion="false"
+                                    valueHelpRequest=".onGroupMultiValueHelp" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                    </fb:filterGroupItems>
+                </fb:FilterBar>
+
+                <OverflowToolbar class="sapUiTinyMarginTop">
+                    <Title text="Aging Analysis" level="H3" />
+                    <ToolbarSpacer />
+                    <Button
+                        text="Export"
+                        icon="sap-icon://excel-attachment"
+                        type="Emphasized"
+                        press=".onExport" />
+                </OverflowToolbar>
+
+                <IconTabBar
+                    id="itbAging"
+                    class="sapUiTinyMarginTop"
+                    select=".onTabSelect"
+                    expandable="false">
+
+                    <items>
+
+                        <!-- ============================ TAB 1: LINE ITEMS ============================ -->
+                        <IconTabFilter id="tabLineItems" key="LINE" text="Line Item Report" icon="sap-icon://list" count="{summary>/lineCount}">
+                            <table:Table
+                                id="tblLineItems"
+                                rows="{summary>/lineItems}"
+                                selectionMode="None"
+                                visibleRowCountMode="Auto"
+                                minAutoRowCount="15"
+                                enableColumnReordering="true"
+                                enableCellFilter="true"
+                                alternateRowColors="true"
+                                busy="{summary>/busy}">
+
+                                <table:columns>
+                                    <table:Column width="12rem" sortProperty="ReportName" filterProperty="ReportName">
+                                        <Label text="Report Name" />
+                                        <table:template><Text text="{summary>ReportName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem">
+                                        <Label text="Evaluation Date" />
+                                        <table:template><Text text="{path:'summary>EvaluationDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="AccountNumber" filterProperty="AccountNumber">
+                                        <Label text="Vendor/Customer Number" />
+                                        <table:template><Text text="{summary>AccountNumber}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="18rem" sortProperty="AccountName" filterProperty="AccountName">
+                                        <Label text="Name" />
+                                        <table:template><Text text="{summary>AccountName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="18rem" sortProperty="AccountGroup" filterProperty="AccountGroup">
+                                        <Label text="Group" />
+                                        <table:template><Text text="{summary>AccountGroup}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="14rem" sortProperty="ReferenceDocument" filterProperty="ReferenceDocument">
+                                        <Label text="PO/Invoice Number" />
+                                        <table:template><Text text="{summary>ReferenceDocument}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem">
+                                        <Label text="PO/Invoice Date" />
+                                        <table:template><Text text="{path:'summary>ReferenceDocumentDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="ReconciliationAccount" filterProperty="ReconciliationAccount">
+                                        <Label text="Reconciliation Account" />
+                                        <table:template><Text text="{summary>ReconciliationAccount}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="18rem">
+                                        <Label text="Reconciliation Account Description" />
+                                        <table:template><Text text="{summary>ReconciliationAccountName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem">
+                                        <Label text="Posting Date" />
+                                        <table:template><Text text="{path:'summary>PostingDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem">
+                                        <Label text="Document Date" />
+                                        <table:template><Text text="{path:'summary>DocumentDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem">
+                                        <Label text="Due Date" />
+                                        <table:template><Text text="{path:'summary>DueDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="14rem">
+                                        <Label text="Invoice/Assignment Number" />
+                                        <table:template><Text text="{summary>AssignmentReference}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="DocumentNumber" filterProperty="DocumentNumber">
+                                        <Label text="Document Number" />
+                                        <table:template><Text text="{summary>DocumentNumber}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="9rem">
+                                        <Label text="Document Type" />
+                                        <table:template><Text text="{summary>DocumentType}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="14rem">
+                                        <Label text="Document Description" />
+                                        <table:template><Text text="{summary>DocumentTypeName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="8rem" sortProperty="Currency" filterProperty="Currency">
+                                        <Label text="Currency" />
+                                        <table:template><Text text="{summary>Currency}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" hAlign="End">
+                                        <Label text="Total Amount" />
+                                        <table:template><Text text="{path:'summary>Amount', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <!-- <table:Column width="11rem" hAlign="End">
+                                        <Label text="Not Due" />
+                                        <table:template><Text text="{path:'summary>NotDue', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column> -->
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="0 - 30" />
+                                        <table:template><Text text="{path:'summary>D0_30', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="31 - 60" />
+                                        <table:template><Text text="{path:'summary>D31_60', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="61 - 90" />
+                                        <table:template><Text text="{path:'summary>D61_90', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="91 - 120" />
+                                        <table:template><Text text="{path:'summary>D91_120', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="121 - 150" />
+                                        <table:template><Text text="{path:'summary>D121_150', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="150 +" />
+                                        <table:template><Text text="{path:'summary>D150p', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                        </IconTabFilter>
+
+                        <!-- ============================ TAB 2: SUMMARY ============================ -->
+                        <IconTabFilter id="tabSummary" key="SUMMARY" text="Summary Report" icon="sap-icon://group-2" count="{summary>/summaryCount}">
+                            <table:Table
+                                id="tblSummary"
+                                rows="{summary>/summaryRows}"
+                                selectionMode="None"
+                                visibleRowCountMode="Auto"
+                                minAutoRowCount="15"
+                                enableColumnReordering="true"
+                                enableCellFilter="true"
+                                alternateRowColors="true"
+                                busy="{summary>/busy}">
+
+                                <table:rowSettingsTemplate>
+                                    <table:RowSettings highlight="{= ${summary>IsTotal} ? 'Information' : 'None'}" />
+                                </table:rowSettingsTemplate>
+
+                                <table:columns>
+                                    <table:Column width="12rem" sortProperty="ReportName" filterProperty="ReportName">
+                                        <Label text="Report Name" />
+                                        <table:template><Text text="{summary>ReportName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem">
+                                        <Label text="Evaluation Date" />
+                                        <table:template><Text text="{path:'summary>EvaluationDate', formatter:'.formatDate'}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="AccountNumber" filterProperty="AccountNumber">
+                                        <Label text="Vendor/Customer Number" />
+                                        <table:template><Text text="{summary>AccountNumber}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="18rem" sortProperty="AccountName" filterProperty="AccountName">
+                                        <Label text="Name" />
+                                        <table:template><Text text="{summary>AccountName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="AccountGroup" filterProperty="AccountGroup">
+                                        <Label text="Group" />
+                                        <table:template><Text text="{summary>AccountGroup}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" sortProperty="ReconciliationAccount" filterProperty="ReconciliationAccount">
+                                        <Label text="Reconciliation Account" />
+                                        <table:template><Text text="{summary>ReconciliationAccount}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="18rem">
+                                        <Label text="Reconciliation Account Description" />
+                                        <table:template><Text text="{summary>ReconciliationAccountName}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="8rem" sortProperty="Currency" filterProperty="Currency">
+                                        <Label text="Currency" />
+                                        <table:template><Text text="{summary>Currency}" wrapping="false" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="12rem" hAlign="End">
+                                        <Label text="Total Amount" />
+                                        <table:template><Text text="{path:'summary>Amount', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <!-- <table:Column width="11rem" hAlign="End">
+                                        <Label text="Not Due" />
+                                        <table:template><Text text="{path:'summary>NotDue', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column> -->
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="0 - 30" />
+                                        <table:template><Text text="{path:'summary>D0_30', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="31 - 60" />
+                                        <table:template><Text text="{path:'summary>D31_60', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="61 - 90" />
+                                        <table:template><Text text="{path:'summary>D61_90', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="91 - 120" />
+                                        <table:template><Text text="{path:'summary>D91_120', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="121 - 150" />
+                                        <table:template><Text text="{path:'summary>D121_150', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                    <table:Column width="11rem" hAlign="End">
+                                        <Label text="150 +" />
+                                        <table:template><Text text="{path:'summary>D150p', formatter:'.formatAmount'}" textAlign="End" /></table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                        </IconTabFilter>
+
+                    </items>
+                </IconTabBar>
+
+            </VBox>
+
+        </content>
+    </Page>
+</mvc:View>

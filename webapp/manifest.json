@@ -1,0 +1,134 @@
+{
+  "_version": "1.80.0",
+  "sap.app": {
+    "id": "zfivcaginga",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.27.0",
+      "toolsId": "af8bb41b-ac5c-4228-bc1d-4b3e69cc4cff"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/sap/opu/odata4/sap/zfi_ui_vcaging_o4/srvd/sap/zfi_ui_vcaging/0001/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/mainService/metadata.xml",
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "ZFI_VC_AGING-deploy": {
+          "semanticObject": "ZFI_VC_AGING",
+          "action": "deploy",
+          "title": "{{ZFI_VC_AGING-deploy.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.142.12",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.table": {},
+        "sap.ui.comp": {},
+        "sap.ui.export": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zfivcaginga.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "zfivcaginga.view",
+        "async": true,
+        "viewPath": "zfivcaginga.view"
+      },
+      "routes": [
+        {
+          "name": "RouteVCAging",
+          "pattern": ":?query:",
+          "target": [
+            "TargetVCAging"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetVCAging": {
+          "id": "VCAging",
+          "name": "VCAging"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "zfivcaginga.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}
